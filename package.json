@@ -1,0 +1,25 @@
+{
+  "name": "restreamer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/restreamer/restreamer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/restreamer/restreamer/issues"
+  },
+  "homepage": "https://github.com/restreamer/restreamer#readme",
+  "dependencies": {
+    "puppeteer": "^15.4.0",
+    "puppeteer-screen-recorder": "^2.0.2",
+    "ts-node": "^10.9.1"
+  }
+}
