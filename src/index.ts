@@ -71,10 +71,18 @@ const streamToRtmp = async (
     console.log("Please provide website url");
     process.exit(1);
   }
-
-  console.log(argv.rtmp, argv.url);
+  let resolution = { width: 1920, height: 1080 };
+  if(argv.resolution) {
+    const resolution = argv.resolution.split(",");
+    if(resolution.length !== 2) {
+      console.log("Please provide resolution in format width,height");
+      process.exit(1);
+    }
+    resolution.width = parseInt(resolution[0]);
+    resolution.height = parseInt(resolution[1]);
+  }
 
   // start stream
   console.log("Starting stream");
-  await streamToRtmp(argv.rtmp, argv.url, { width: 1920, height: 1080 });
+  await streamToRtmp(argv.rtmp, argv.url, resolution);
 })();
