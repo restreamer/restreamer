@@ -66,7 +66,7 @@ const streamToRtmp = async (
 
   const [page] = await browser.pages();
   // const page = await browser.newPage();
-  await page.goto(pageUrl);
+  await page.goto(pageUrl, { waitUntil: "networkidle0" });
 
   const videoConstraints = {
     mandatory: {
