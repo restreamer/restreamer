@@ -12,7 +12,7 @@
     "url": "git+https://github.com/restreamer/restreamer.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/restreamer/restreamer/issues"
   },

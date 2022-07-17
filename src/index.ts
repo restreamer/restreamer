@@ -4,8 +4,9 @@ import { exec } from "child_process";
 const streamToRtmp = async (rtmpUrl: string, pageUrl: string) => {
   const browser = await launch({
     defaultViewport: {
-      width: 1920,
-      height: 1080,
+      width: 1280,
+      height: 720,
+      headless: true
     },
   });
 

@@ -1,6 +1,19 @@
-# Restreamer
+# REstreamer
+
+
+With REstreamer you can stream a Website to a RTMP Server for example YouTube.
+
+
+Working
+* Video
+* Audio
+* Headless
+
 
 To use, please call:
 
-```npm start {stream url} {browser url}```
+```
+npm install
+npm start {rtmp stream url} {browser url}
+```
 
