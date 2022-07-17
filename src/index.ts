@@ -1,21 +1,47 @@
-import puppeteer from 'puppeteer';
-import {PuppeteerScreenRecorder} from 'puppeteer-screen-recorder';
-import { PassThrough, Writable } from 'stream';
+import { launch, getStream } from "puppeteer-stream";
+import { exec } from "child_process";
+
+const streamToRtmp = async (rtmpUrl: string, pageUrl: string) => {
+  const browser = await launch({
+    defaultViewport: {
+      width: 1920,
+      height: 1080,
+    },
+  });
+
+  const page = await browser.newPage();
+  await page.goto(pageUrl);
+
+  const stream = await getStream(page, {
+    audio: true,
+    video: true,
+  });
+
+  console.log("restreaming to", rtmpUrl);
+
+  const ffmpeg = exec(
+    `ffmpeg -i - -c:v libx264 -preset veryfast -tune zerolatency -c:a aac -f flv ${rtmpUrl}`
+  );
+
+  ffmpeg.stderr?.on("data", (chunk) => {
+    console.log(chunk.toString());
+  });
+
+  stream.pipe(ffmpeg.stdin!!);
+};
 
 (async () => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  const recorder = new PuppeteerScreenRecorder(page);
+  // take stream key, and browser url as command arguments and return error if not provided
+  if (process.argv.length < 3) {
+    console.log("Please provide stream url and browser url");
+    process.exit(1);
+  }
 
-  // Stream to rtmp stream // YouTube
-  const pipeStream = new PassThrough();
-  await recorder.startStream(pipeStream);
-  // await recorder.start('./simple.mp4');
-  await page.goto('https://www.ventusky.com/');
+  // get stream url from arguments
+  const streamUrl = process.argv[2];
+  const browserUrl = process.argv[3];
 
-  /*setTimeout(async ()=> {
-
-    await recorder.stop();
-    await browser.close();
-  }, 5000)*/
+  // start stream
+  console.log("Starting stream");
+  await streamToRtmp(streamUrl, browserUrl);
 })();
