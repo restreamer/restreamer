@@ -3,6 +3,7 @@ import { exec } from "child_process";
 
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import minimist from 'minimist';
 puppeteer.use(StealthPlugin());
 
 const streamToRtmp = async (
@@ -61,17 +62,19 @@ const streamToRtmp = async (
 };
 
 (async () => {
-  // take stream key, and browser url as command arguments and return error if not provided
-  if (process.argv.length < 3) {
-    console.log("Please provide stream url and browser url");
+  var argv = minimist(process.argv.slice(2));
+  if(!argv.rtmp) {
+    console.log("Please provide rtmp url");
+    process.exit(1);
+  }
+  if(!argv.url) {
+    console.log("Please provide website url");
     process.exit(1);
   }
 
-  // get stream url from arguments
-  const streamUrl = process.argv[2];
-  const browserUrl = process.argv[3];
+  console.log(argv.rtmp, argv.url);
 
   // start stream
   console.log("Starting stream");
-  await streamToRtmp(streamUrl, browserUrl, { width: 1920, height: 1080 });
+  await streamToRtmp(argv.rtmp, argv.url, { width: 1920, height: 1080 });
 })();
