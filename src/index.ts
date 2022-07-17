@@ -12,7 +12,7 @@ const streamToRtmp = async (rtmpUrl: string, pageUrl: string) => {
       width: 1920,
       height: 1080
     },
-    args: ['--headless=chrome']
+    args: ['--headless=chrome', '--no-sandbox', '--disable-setuid-sandbox']
   });
 
   const page = await browser.newPage();
