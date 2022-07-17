@@ -3,8 +3,46 @@ import { exec } from "child_process";
 
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import minimist from 'minimist';
-import 'dotenv/config'
+import minimist from "minimist";
+import "dotenv/config";
+
+const minimal_args = [
+  "--autoplay-policy=no-user-gesture-required",
+  "--disable-background-networking",
+  "--disable-background-timer-throttling",
+  "--disable-backgrounding-occluded-windows",
+  "--disable-breakpad",
+  "--disable-client-side-phishing-detection",
+  "--disable-component-update",
+  "--disable-default-apps",
+  "--disable-dev-shm-usage",
+  "--disable-domain-reliability",
+  "--disable-extensions",
+  "--disable-features=AudioServiceOutOfProcess",
+  "--disable-hang-monitor",
+  "--disable-ipc-flooding-protection",
+  "--disable-notifications",
+  "--disable-offer-store-unmasked-wallet-cards",
+  "--disable-popup-blocking",
+  "--disable-print-preview",
+  "--disable-prompt-on-repost",
+  "--disable-renderer-backgrounding",
+  "--disable-setuid-sandbox",
+  "--disable-speech-api",
+  "--disable-sync",
+  "--hide-scrollbars",
+  "--ignore-gpu-blacklist",
+  "--metrics-recording-only",
+  "--mute-audio",
+  "--no-default-browser-check",
+  "--no-first-run",
+  "--no-pings",
+  "--no-sandbox",
+  "--no-zygote",
+  "--password-store=basic",
+  "--use-gl=swiftshader",
+  "--use-mock-keychain",
+];
 
 puppeteer.use(StealthPlugin());
 
@@ -16,20 +54,18 @@ const streamToRtmp = async (
   const browser = await launch({
     defaultViewport: null,
     args: [
-      "--no-zygote",
-      "--no-sandbox",
-     // "--disable-gpu",
-     // "--single-process",
-     // "--start-fullscreen",
+      ...minimal_args,
+      // "--disable-gpu",
+      // "--single-process",
+      // "--start-fullscreen",
       "--headless=chrome",
       "--ignore-certificate-errors",
-      "--disable-software-rasterizer",
-      "--disable-setuid-sandbox",
       `--window-size=${resolution.width},${resolution.height}`,
     ],
   });
 
-  const page = await browser.newPage();
+  const [page] = await browser.pages();
+  // const page = await browser.newPage();
   await page.goto(pageUrl);
 
   const videoConstraints = {
@@ -41,46 +77,52 @@ const streamToRtmp = async (
     },
   };
 
-  const stream = await getStream(page, {
-    audio: true,
-    video: true,
-    frameSize: 2000,
-    // @ts-ignore
-    videoConstraints,
-  });
+  setTimeout(async () => {
+    try {
+      const ffmpeg = exec(
+        `ffmpeg -i - -c:v libx264 -vf scale=${resolution.width}:${resolution.height} -preset veryfast -r 30 -filter:v fps=fps=30 -g:v 60 -c:a aac -f flv ${rtmpUrl}`
+        // `ffmpeg -i -  -map 0 -c:v libx264 -vf scale=640:480 -preset veryfast -tune zerolatency -g:v 60 -c:a aac -strict -2 -ar 44100 -b:a 64k -y -use_wallclock_as_timestamps 1 -async 1 -flags +global_header -f flv ${rtmpUrl}`
+      );
 
-  const ffmpeg = exec(
-    `ffmpeg -i - -c:v libx264 -vf scale=${resolution.width}:${resolution.height}  -preset veryfast -r 30 -filter:v fps=fps=30 -g:v 60 -c:a aac -f flv ${rtmpUrl}`
-    // `ffmpeg -i -  -map 0 -c:v libx264 -vf scale=640:480 -preset veryfast -tune zerolatency -g:v 60 -c:a aac -strict -2 -ar 44100 -b:a 64k -y -use_wallclock_as_timestamps 1 -async 1 -flags +global_header -f flv ${rtmpUrl}`
-  );
+      ffmpeg.stderr?.on("data", (chunk) => {
+        console.log(chunk.toString());
+      });
 
-  ffmpeg.stderr?.on("data", (chunk) => {
-    console.log(chunk.toString());
-  });
+      const stream = await getStream(page, {
+        audio: true,
+        video: true,
+        frameSize: 1000,
+        // @ts-ignore
+        videoConstraints,
+      });
 
-  stream.pipe(ffmpeg.stdin!!);
+      stream.pipe(ffmpeg.stdin!!);
+    } catch (error) {
+      console.log("error", error);
+    }
+  }, 1000);
 };
 
 (async () => {
-  console.log('process.env', process.env.RTMP)
+  console.log("process.env", process.env.RTMP);
   var argv = minimist(process.argv.slice(2));
   const rtmp = argv.rtmp || process.env.RTMP;
   const url = argv.url || process.env.URL;
   const resolutionArgs = argv.resolution || process.env.RESOLUTION;
 
-  if(!rtmp) {
+  if (!rtmp) {
     console.log("Please provide rtmp url");
     process.exit(1);
   }
-  if(!url) {
+  if (!url) {
     console.log("Please provide website url");
     process.exit(1);
   }
 
   let resolution = { width: 1920, height: 1080 };
-  if(resolutionArgs) {
+  if (resolutionArgs) {
     const resolutionFormatted = resolutionArgs.split(",");
-    if(resolutionFormatted.length !== 2) {
+    if (resolutionFormatted.length !== 2) {
       console.log("Please provide resolution in format width,height");
       process.exit(1);
     }
@@ -90,9 +132,9 @@ const streamToRtmp = async (
 
   // start stream
   console.log("Starting stream");
-  console.log('RTMP Url:', rtmp);
-  console.log('Website:', url);
-  console.log('Resolution:', resolution);
+  console.log("RTMP Url:", rtmp);
+  console.log("Website:", url);
+  console.log("Resolution:", resolution);
 
   await streamToRtmp(rtmp, url, resolution);
 })();
