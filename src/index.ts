@@ -4,12 +4,14 @@ import { exec } from "child_process";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import minimist from 'minimist';
+import 'dotenv/config'
+
 puppeteer.use(StealthPlugin());
 
 const streamToRtmp = async (
   rtmpUrl: string,
   pageUrl: string,
-  resolution: { width: number; height: number } = { width: 1280, height: 720 }
+  resolution: { width: number; height: number } = { width: 1920, height: 1080 }
 ) => {
   const browser = await launch({
     defaultViewport: null,
@@ -47,8 +49,6 @@ const streamToRtmp = async (
     videoConstraints,
   });
 
-  console.log("restreaming to", rtmpUrl);
-
   const ffmpeg = exec(
     `ffmpeg -i - -c:v libx264 -vf scale=${resolution.width}:${resolution.height}  -preset veryfast -r 30 -filter:v fps=fps=30 -g:v 60 -c:a aac -f flv ${rtmpUrl}`
     // `ffmpeg -i -  -map 0 -c:v libx264 -vf scale=640:480 -preset veryfast -tune zerolatency -g:v 60 -c:a aac -strict -2 -ar 44100 -b:a 64k -y -use_wallclock_as_timestamps 1 -async 1 -flags +global_header -f flv ${rtmpUrl}`
@@ -62,27 +62,37 @@ const streamToRtmp = async (
 };
 
 (async () => {
+  console.log('process.env', process.env.RTMP)
   var argv = minimist(process.argv.slice(2));
-  if(!argv.rtmp) {
+  const rtmp = argv.rtmp || process.env.RTMP;
+  const url = argv.url || process.env.URL;
+  const resolutionArgs = argv.resolution || process.env.RESOLUTION;
+
+  if(!rtmp) {
     console.log("Please provide rtmp url");
     process.exit(1);
   }
-  if(!argv.url) {
+  if(!url) {
     console.log("Please provide website url");
     process.exit(1);
   }
+
   let resolution = { width: 1920, height: 1080 };
-  if(argv.resolution) {
-    const resolution = argv.resolution.split(",");
-    if(resolution.length !== 2) {
+  if(resolutionArgs) {
+    const resolutionFormatted = resolutionArgs.split(",");
+    if(resolutionFormatted.length !== 2) {
       console.log("Please provide resolution in format width,height");
       process.exit(1);
     }
-    resolution.width = parseInt(resolution[0]);
-    resolution.height = parseInt(resolution[1]);
+    resolution.width = parseInt(resolutionFormatted[0]);
+    resolution.height = parseInt(resolutionFormatted[1]);
   }
 
   // start stream
   console.log("Starting stream");
-  await streamToRtmp(argv.rtmp, argv.url, resolution);
+  console.log('RTMP Url:', rtmp);
+  console.log('Website:', url);
+  console.log('Resolution:', resolution);
+
+  await streamToRtmp(rtmp, url, resolution);
 })();
