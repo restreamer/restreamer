@@ -1,7 +1,7 @@
 # REstreamer
 
 
-With REstreamer you can stream a Website to a RTMP Server for example YouTube.
+With REstreamer you can stream a Website to a RTMP Server for example YouTube with NodeJS.
 
 
 Working

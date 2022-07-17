@@ -1,13 +1,18 @@
 import { launch, getStream } from "puppeteer-stream";
 import { exec } from "child_process";
 
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+puppeteer.use(StealthPlugin())
+
+
 const streamToRtmp = async (rtmpUrl: string, pageUrl: string) => {
   const browser = await launch({
     defaultViewport: {
-      width: 1280,
-      height: 720,
-      headless: true
+      width: 1920,
+      height: 1080
     },
+    args: ['--headless=chrome']
   });
 
   const page = await browser.newPage();
