@@ -49,7 +49,7 @@ const streamToRtmp = async (
   console.log("restreaming to", rtmpUrl);
 
   const ffmpeg = exec(
-    `ffmpeg -i - -c:v libx264 -vf scale=${resolution.width}:${resolution.height}  -preset veryfast -tune zerolatency -c:a aac -f flv ${rtmpUrl}`
+    `ffmpeg -i - -c:v libx264 -vf scale=${resolution.width}:${resolution.height}  -preset veryfast -r 24 -filter:v fps=fps=24 -g:v 48 -c:a aac -f flv ${rtmpUrl}`
     // `ffmpeg -i -  -map 0 -c:v libx264 -vf scale=640:480 -preset veryfast -tune zerolatency -g:v 60 -c:a aac -strict -2 -ar 44100 -b:a 64k -y -use_wallclock_as_timestamps 1 -async 1 -flags +global_header -f flv ${rtmpUrl}`
   );
 
