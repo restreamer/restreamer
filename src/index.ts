@@ -27,7 +27,6 @@ const minimal_args = [
   "--disable-print-preview",
   "--disable-prompt-on-repost",
   "--disable-renderer-backgrounding",
-  "--disable-setuid-sandbox",
   "--disable-speech-api",
   "--disable-sync",
   "--hide-scrollbars",
@@ -42,6 +41,8 @@ const minimal_args = [
   "--password-store=basic",
   "--use-gl=swiftshader",
   "--use-mock-keychain",
+  "--ignore-certificate-errors",
+  "--disable-infobars",
 ];
 
 puppeteer.use(StealthPlugin());
@@ -49,17 +50,18 @@ puppeteer.use(StealthPlugin());
 const streamToRtmp = async (
   rtmpUrl: string,
   pageUrl: string,
-  resolution: { width: number; height: number } = { width: 1920, height: 1080 }
+  resolution: { width: number; height: number } = { width: 1920, height: 1080 },
+  frameRate: number = 30,
 ) => {
   const browser = await launch({
     defaultViewport: null,
+    ignoreDefaultArgs: ["--enable-automation"],
     args: [
       ...minimal_args,
       // "--disable-gpu",
       // "--single-process",
-      // "--start-fullscreen",
-      "--headless=chrome",
-      "--ignore-certificate-errors",
+     // "--start-fullscreen",
+     "--headless=chrome",
       `--window-size=${resolution.width},${resolution.height}`,
     ],
   });
@@ -67,7 +69,7 @@ const streamToRtmp = async (
   const [page] = await browser.pages();
   // const page = await browser.newPage();
   await page.goto(pageUrl, { waitUntil: "networkidle0" });
-
+  page.setViewport({ width: resolution.width, height: resolution.height });
   const videoConstraints = {
     mandatory: {
       minWidth: resolution.width,
@@ -80,7 +82,7 @@ const streamToRtmp = async (
   setTimeout(async () => {
     try {
       const ffmpeg = exec(
-        `ffmpeg -i - -c:v libx264 -vf scale=${resolution.width}:${resolution.height} -preset veryfast -r 30 -filter:v fps=fps=30 -g:v 60 -c:a aac -f flv ${rtmpUrl}`
+        `ffmpeg -i - -c:v libx264 -vf scale=${resolution.width}:${resolution.height} -preset veryfast -r ${frameRate} -filter:v fps=fps=${frameRate} -g:v ${frameRate * 2} -c:a aac -f flv ${rtmpUrl}`
         // `ffmpeg -i -  -map 0 -c:v libx264 -vf scale=640:480 -preset veryfast -tune zerolatency -g:v 60 -c:a aac -strict -2 -ar 44100 -b:a 64k -y -use_wallclock_as_timestamps 1 -async 1 -flags +global_header -f flv ${rtmpUrl}`
       );
 
@@ -104,11 +106,11 @@ const streamToRtmp = async (
 };
 
 (async () => {
-  console.log("process.env", process.env.RTMP);
   var argv = minimist(process.argv.slice(2));
   const rtmp = argv.rtmp || process.env.RTMP;
   const url = argv.url || process.env.URL;
   const resolutionArgs = argv.resolution || process.env.RESOLUTION;
+  const framerate = argv.framerate || process.env.FRAMERATE;
 
   if (!rtmp) {
     console.log("Please provide rtmp url");
@@ -135,6 +137,7 @@ const streamToRtmp = async (
   console.log("RTMP Url:", rtmp);
   console.log("Website:", url);
   console.log("Resolution:", resolution);
+  console.log("Framerate:", framerate);
 
-  await streamToRtmp(rtmp, url, resolution);
+  await streamToRtmp(rtmp, url, resolution, framerate);
 })();
