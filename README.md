@@ -4,14 +4,18 @@
 With REstreamer you can stream a Website to a RTMP Server for example YouTube with NodeJS.
 You can use NodeJS Arguments or .env file to provide the config.
 
-Working
+Features
 * Video
 * Audio
 * Headless
 * Resolution
 * Full HD Streaming
 
-## To use, please call:
+## Demo
+
+[https://www.youtube.com/watch?v=gfiQ-c7ib_Q](https://www.youtube.com/watch?v=gfiQ-c7ib_Q)
+
+## Usage
 ```
 npm install
 npm start --rtmp={rtmp stream url} --url={browser url} --resolution=1920,1080
