@@ -110,7 +110,7 @@ const streamToRtmp = async (
   const rtmp = argv.rtmp || process.env.RTMP;
   const url = argv.url || process.env.URL;
   const resolutionArgs = argv.resolution || process.env.RESOLUTION;
-  const framerate = argv.framerate || process.env.FRAMERATE;
+  const framerate = argv.framerate || process.env.FRAMERATE || 30;
 
   if (!rtmp) {
     console.log("Please provide rtmp url");

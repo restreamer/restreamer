@@ -23,7 +23,7 @@ npm start --rtmp={rtmp stream url} --url={browser url} --resolution=1920,1080
 
 ## Run in background
 ```
-npm run forever:start
+npm run pm2:start
 ```
 
 ## Arguments:
