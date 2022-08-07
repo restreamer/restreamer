@@ -14,8 +14,11 @@
 
 # REstreamer
 
-With REstreamer you can stream a Website to a RTMP Server for example YouTube with NodeJS.
-You can use NodeJS Arguments or .env file to provide the config. 
+REstreamer is a (Node.js) command line tool that easily allows you to stream a website to a RTMP server (YouTube). 
+Enabling you to deliver your content to viewers on a variety of devices, regardless of platform. 
+This can include smartphones, Smart TVs, Games Consoles.
+
+You can use NodeJS Arguments or .env file to provide the config.
 This works on Windows, MacOS and Linux.
 
 ## Features
