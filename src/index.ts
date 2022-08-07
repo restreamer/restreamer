@@ -1,44 +1,11 @@
-import { launch, getStream } from "puppeteer-stream";
 import { exec } from "child_process";
-
+import "dotenv/config";
+import minimist from "minimist";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import minimist from "minimist";
-import "dotenv/config";
-
-const extensions = [
-  'plugins/i-don-t-care-about-cookies/',
-  'plugins/uBlock-Origin/',
-]
-const minimal_args = [
-  "--autoplay-policy=no-user-gesture-required",
-  "--disable-background-networking",
-  "--disable-background-timer-throttling",
-  "--disable-backgrounding-occluded-windows",
-  "--disable-breakpad",
-  "--disable-client-side-phishing-detection",
-  "--disable-component-update",
-  "--disable-dev-shm-usage",
-  "--disable-domain-reliability",
-  "--disable-hang-monitor",
-  "--disable-ipc-flooding-protection",
-  "--disable-notifications",
-  "--disable-offer-store-unmasked-wallet-cards",
-  "--disable-print-preview",
-  "--disable-prompt-on-repost",
-  "--disable-renderer-backgrounding",
-  "--disable-speech-api",
-  "--disable-sync",
-  "--hide-scrollbars",
-  "--metrics-recording-only",
-  "--no-default-browser-check",
-  "--password-store=basic",
-  "--use-gl=swiftshader",
-  "--use-mock-keychain",
-  "--ignore-certificate-errors",
-  "--disable-infobars",
-  "--no-sandbox"
-];
+import { getStream, launch } from "puppeteer-stream";
+import { minimal_args } from "./flags";
+import { extensions } from "./plugins";
 
 puppeteer.use(StealthPlugin());
 
@@ -77,7 +44,6 @@ const streamToRtmp = async (
     try {
       const ffmpeg = exec(
         `ffmpeg -i - -c:v libx264 -vf scale=${resolution.width}:${resolution.height} -preset veryfast -r ${frameRate} -filter:v fps=fps=${frameRate} -g:v ${frameRate * 2} -c:a aac -f flv ${rtmpUrl}`
-        // `ffmpeg -i -  -map 0 -c:v libx264 -vf scale=640:480 -preset veryfast -tune zerolatency -g:v 60 -c:a aac -strict -2 -ar 44100 -b:a 64k -y -use_wallclock_as_timestamps 1 -async 1 -flags +global_header -f flv ${rtmpUrl}`
       );
 
       ffmpeg.stderr?.on("data", (chunk) => {
