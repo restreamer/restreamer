@@ -1,17 +1,30 @@
+<p align="center">
+ <img width="100%" height="100%" src="https://raw.githubusercontent.com/restreamer/restreamer/main/logo.png?sanitize=true">
+</p>
+
+
+[![All Contributors](https://img.shields.io/badge/all_contributors-48-orange.svg?style=flat-square)](#contributors)
+[![MIT](https://img.shields.io/packagist/l/doctrine/orm.svg?style=flat-square)]()
+[![commitizen](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=flat-square)]()
+[![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)]()
+[![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+
+> Stream a Website to YouTube
+
+
 # REstreamer
 
 With REstreamer you can stream a Website to a RTMP Server for example YouTube with NodeJS.
 You can use NodeJS Arguments or .env file to provide the config. 
 This works on Windows, MacOS and Linux.
 
-Features
-* Video
-* Audio
-* Headless
-* Resolution
-* Full HD Streaming
-* Cookie Hide
-* uBlock Origin (Adblocker)
+## Features
+- ✅ Video
+- ✅ Audio
+- ✅ Headless
+- ✅ Full HD Streaming
+- ✅ Cookie Hide
+- ✅ uBlock Origin (Adblocker)
 
 ## Demo
 
