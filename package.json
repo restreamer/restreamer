@@ -21,7 +21,7 @@
   "dependencies": {
     "dotenv": "^16.0.1",
     "minimist": "^1.2.6",
-    "puppeteer": "^15.4.0",
+    "puppeteer": "^16.1.0",
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-stealth": "^2.11.0",
     "puppeteer-stream": "^2.1.1",
@@ -30,6 +30,6 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "pm2": "^0.12.10"
+    "pm2": "^5.2.0"
   }
 }

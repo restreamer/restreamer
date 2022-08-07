@@ -6,6 +6,10 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import minimist from "minimist";
 import "dotenv/config";
 
+const extensions = [
+  'plugins/i-don-t-care-about-cookies/',
+  'plugins/uBlock-Origin/',
+]
 const minimal_args = [
   "--autoplay-policy=no-user-gesture-required",
   "--disable-background-networking",
@@ -14,30 +18,20 @@ const minimal_args = [
   "--disable-breakpad",
   "--disable-client-side-phishing-detection",
   "--disable-component-update",
-  "--disable-default-apps",
   "--disable-dev-shm-usage",
   "--disable-domain-reliability",
-  "--disable-extensions",
-  "--disable-features=AudioServiceOutOfProcess",
   "--disable-hang-monitor",
   "--disable-ipc-flooding-protection",
   "--disable-notifications",
   "--disable-offer-store-unmasked-wallet-cards",
-  "--disable-popup-blocking",
   "--disable-print-preview",
   "--disable-prompt-on-repost",
   "--disable-renderer-backgrounding",
   "--disable-speech-api",
   "--disable-sync",
   "--hide-scrollbars",
-  "--ignore-gpu-blacklist",
   "--metrics-recording-only",
-  "--mute-audio",
   "--no-default-browser-check",
-  "--no-first-run",
-  "--no-pings",
-  "--no-sandbox",
-  "--no-zygote",
   "--password-store=basic",
   "--use-gl=swiftshader",
   "--use-mock-keychain",
@@ -55,21 +49,20 @@ const streamToRtmp = async (
 ) => {
   const browser = await launch({
     defaultViewport: null,
-    ignoreDefaultArgs: ["--enable-automation"],
+    ignoreDefaultArgs: ["--disable-extensions", "--enable-automation"],
     args: [
       ...minimal_args,
-      // "--disable-gpu",
-      // "--single-process",
-     // "--start-fullscreen",
-     "--headless=chrome",
+     `--disable-extensions-except=${extensions.toString()}`,
+     `--load-extension=${extensions.toString()}`,
+     '--headless=chrome',
       `--window-size=${resolution.width},${resolution.height}`,
     ],
   });
 
   const [page] = await browser.pages();
-  // const page = await browser.newPage();
   await page.goto(pageUrl, { waitUntil: "networkidle0" });
   page.setViewport({ width: resolution.width, height: resolution.height });
+  
   const videoConstraints = {
     mandatory: {
       minWidth: resolution.width,
