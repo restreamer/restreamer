@@ -37,6 +37,7 @@ const minimal_args = [
   "--use-mock-keychain",
   "--ignore-certificate-errors",
   "--disable-infobars",
+  "--no-sandbox"
 ];
 
 puppeteer.use(StealthPlugin());
