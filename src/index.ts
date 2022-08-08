@@ -14,6 +14,7 @@ const streamToRtmp = async (
   pageUrl: string,
   resolution: { width: number; height: number } = { width: 1920, height: 1080 },
   frameRate: number = 30,
+  buffSize: number = 4,
 ) => {
   const browser = await launch({
     defaultViewport: null,
@@ -43,7 +44,7 @@ const streamToRtmp = async (
   setTimeout(async () => {
     try {
       const ffmpeg = exec(
-        `ffmpeg -i - -c:v libx264 -vf scale=${resolution.width}:${resolution.height} -preset veryfast -r ${frameRate} -filter:v fps=fps=${frameRate} -g:v ${frameRate * 2} -c:a aac -f flv ${rtmpUrl}`
+        `ffmpeg -i - -c:v libx264 -vf scale=${resolution.width}:${resolution.height} -preset veryfast -r ${frameRate} -filter:v fps=fps=${frameRate} -g:v ${frameRate * 2} -c:a aac -b:v ${buffSize}M -maxrate ${buffSize}M -bufsize ${buffSize / 2}M  -f flv ${rtmpUrl}`
       );
 
       ffmpeg.stderr?.on("data", (chunk) => {
