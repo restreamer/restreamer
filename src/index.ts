@@ -1,6 +1,7 @@
 import { exec } from "child_process";
 import "dotenv/config";
 import minimist from "minimist";
+import { executablePath } from "puppeteer";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { getStream, launch } from "puppeteer-stream";
@@ -24,19 +25,20 @@ const streamToRtmp = async (
       ...minimal_args,
      `--disable-extensions-except=${extensions.toString()}`,
      `--load-extension=${extensions.toString()}`,
-     '--headless=chrome',
+     // '--headless=chrome',
       `--window-size=${resolution.width},${resolution.height}`,
     ],
+    executablePath: executablePath(),
   });
 
   const [page] = await browser.pages();
+  await page.goto(pageUrl, { waitUntil: "networkidle0" });
   await page.addStyleTag({content: 'body { overflow: hidden !important; }'});
   await page.emulateMediaFeatures([{
     name: 'prefers-color-scheme', value: 'dark' }]);
-  await page.goto(pageUrl, { waitUntil: "networkidle0" });
-  await page.evaluate(() => {
+  await page.evaluate((scrollToY) => {
     window.scrollTo(0, scrollToY);
-  });
+  }, scrollToY);
   page.setViewport({ width: resolution.width, height: resolution.height });
   
   const videoConstraints = {
@@ -79,7 +81,7 @@ const streamToRtmp = async (
   const url = argv.url || process.env.URL;
   const resolutionArgs = argv.resolution || process.env.RESOLUTION;
   const framerate = argv.framerate || process.env.FRAMERATE || 30;
-  const scrollToY = argv.scrollToY || process.env.SCROLLTOY || 0;
+  const scrollToY = parseInt(argv.scrollToY || process.env.SCROLLTOY || 0);
 
   if (!rtmp) {
     console.log("Please provide rtmp url");
