@@ -27,8 +27,7 @@ const streamToRtmp = async (
      `--load-extension=${extensions.toString()}`,
      '--headless=chrome',
       `--window-size=${resolution.width},${resolution.height}`,
-    ],
-    executablePath: executablePath(),
+    ]
   });
 
   const [page] = await browser.pages();
