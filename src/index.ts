@@ -25,7 +25,7 @@ const streamToRtmp = async (
       ...minimal_args,
      `--disable-extensions-except=${extensions.toString()}`,
      `--load-extension=${extensions.toString()}`,
-     // '--headless=chrome',
+     '--headless=chrome',
       `--window-size=${resolution.width},${resolution.height}`,
     ],
     executablePath: executablePath(),
