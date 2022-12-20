@@ -15,10 +15,11 @@ const streamToRtmp = async (
   resolution: { width: number; height: number } = { width: 1920, height: 1080 },
   frameRate: number = 30,
   buffSize: number = 4,
+  scrollToY: number = 0,
 ) => {
   const browser = await launch({
     defaultViewport: null,
-    ignoreDefaultArgs: ["--disable-extensions", "--enable-automation"],
+    ignoreDefaultArgs: ["--hide-scrollbars", "--disable-extensions", "--enable-automation"],
     args: [
       ...minimal_args,
      `--disable-extensions-except=${extensions.toString()}`,
@@ -29,7 +30,13 @@ const streamToRtmp = async (
   });
 
   const [page] = await browser.pages();
+  await page.addStyleTag({content: 'body { overflow: hidden !important; }'});
+  await page.emulateMediaFeatures([{
+    name: 'prefers-color-scheme', value: 'dark' }]);
   await page.goto(pageUrl, { waitUntil: "networkidle0" });
+  await page.evaluate(() => {
+    window.scrollTo(0, scrollToY);
+  });
   page.setViewport({ width: resolution.width, height: resolution.height });
   
   const videoConstraints = {
@@ -72,6 +79,7 @@ const streamToRtmp = async (
   const url = argv.url || process.env.URL;
   const resolutionArgs = argv.resolution || process.env.RESOLUTION;
   const framerate = argv.framerate || process.env.FRAMERATE || 30;
+  const scrollToY = argv.scrollToY || process.env.SCROLLTOY || 0;
 
   if (!rtmp) {
     console.log("Please provide rtmp url");
@@ -99,6 +107,7 @@ const streamToRtmp = async (
   console.log("Website:", url);
   console.log("Resolution:", resolution);
   console.log("Framerate:", framerate);
+  console.log("ScrollToY:", scrollToY);
 
-  await streamToRtmp(rtmp, url, resolution, framerate);
+  await streamToRtmp(rtmp, url, resolution, framerate, 4, scrollToY);
 })();
